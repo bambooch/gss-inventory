@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.gss.inventory.inventory.domain.model.records.InventoryItem;
 import com.gss.inventory.inventory.domain.repository.InventoryItemRepository;
 import com.gss.inventory.inventory.infrastructure.persistence.entity.InventoryItemEntity;
+import com.gss.inventory.inventory.infrastructure.persistence.entity.ItemImageEntity;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
@@ -22,14 +23,21 @@ public class JpaInventoryItemRepository implements InventoryItemRepository {
 
     @Override
     public InventoryItem save(InventoryItem item) {
-        InventoryItemEntity saved = repository.save(toEntity(null, item));
-        return toDomain(saved);
+        InventoryItemEntity entity = new InventoryItemEntity(null, item.name(), item.category(),
+            item.description(), item.location(), item.totalQuantity(), item.availableQuantity());
+        return toDomain(repository.save(entity));
     }
 
     @Override
     public InventoryItem update(InventoryItem item) {
-        InventoryItemEntity saved = repository.save(toEntity(item.id(), item));
-        return toDomain(saved);
+        InventoryItemEntity entity = repository.findById(item.id()).orElseThrow();
+        entity.setName(item.name());
+        entity.setCategory(item.category());
+        entity.setDescription(item.description());
+        entity.setLocation(item.location());
+        entity.setTotalQuantity(item.totalQuantity());
+        entity.setAvailableQuantity(item.availableQuantity());
+        return toDomain(repository.save(entity));
     }
 
     @Override
@@ -47,14 +55,36 @@ public class JpaInventoryItemRepository implements InventoryItemRepository {
         return repository.findById(id).map(this::toDomain);
     }
 
-    private InventoryItemEntity toEntity(Long id, InventoryItem item) {
-        return new InventoryItemEntity(id, item.name(), item.category(), item.description(),
-            item.location(), item.totalQuantity(), item.availableQuantity());
+    @Override
+    public InventoryItem addImages(Long itemId, List<String> filePaths) {
+        InventoryItemEntity entity = repository.findById(itemId).orElseThrow();
+        int nextOrder = entity.getImages().size();
+        for (String path : filePaths) {
+            entity.getImages().add(new ItemImageEntity(null, path, nextOrder++));
+        }
+        return toDomain(repository.save(entity));
+    }
+
+    @Override
+    public Optional<String> removeImage(Long itemId, Long imageId) {
+        return repository.findById(itemId).flatMap(entity -> {
+            Optional<ItemImageEntity> found = entity.getImages().stream()
+                .filter(img -> img.getId().equals(imageId))
+                .findFirst();
+            found.ifPresent(img -> {
+                entity.getImages().remove(img);
+                repository.save(entity);
+            });
+            return found.map(ItemImageEntity::getFilePath);
+        });
     }
 
     private InventoryItem toDomain(InventoryItemEntity entity) {
+        List<InventoryItem.Image> images = entity.getImages().stream()
+            .map(img -> new InventoryItem.Image(img.getId(), "/api/uploads/" + img.getFilePath()))
+            .toList();
         return new InventoryItem(entity.getId(), entity.getName(), entity.getCategory(),
             entity.getDescription(), entity.getLocation(), entity.getTotalQuantity(),
-            entity.getAvailableQuantity());
+            entity.getAvailableQuantity(), images);
     }
 }

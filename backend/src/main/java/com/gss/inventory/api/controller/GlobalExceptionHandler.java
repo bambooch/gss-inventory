@@ -2,6 +2,7 @@ package com.gss.inventory.api.controller;
 
 import java.util.Map;
 
+import com.gss.inventory.inventory.domain.exception.ImageNotFoundException;
 import com.gss.inventory.inventory.domain.exception.InsufficientStockException;
 import com.gss.inventory.inventory.domain.exception.InventoryItemNotFoundException;
 import com.gss.inventory.inventory.domain.exception.MemberNotFoundException;
@@ -18,7 +19,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
         InventoryItemNotFoundException.class,
         MemberNotFoundException.class,
-        OrderNotFoundException.class
+        OrderNotFoundException.class,
+        ImageNotFoundException.class
     })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleNotFound(RuntimeException ex) {

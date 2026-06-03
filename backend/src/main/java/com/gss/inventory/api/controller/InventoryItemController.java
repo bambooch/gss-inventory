@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "Inventory")
 @RestController
@@ -71,8 +73,24 @@ public class InventoryItemController {
         itemService.deleteItem(id);
     }
 
+    @Operation(summary = "Upload images for an inventory item")
+    @PostMapping(value = "/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public InventoryItemResponse uploadImages(@PathVariable Long id,
+            @RequestParam("files") List<MultipartFile> files) {
+        return toResponse(itemService.uploadImages(id, files));
+    }
+
+    @Operation(summary = "Delete an image from an inventory item")
+    @DeleteMapping("/{id}/images/{imageId}")
+    public InventoryItemResponse deleteImage(@PathVariable Long id, @PathVariable Long imageId) {
+        return toResponse(itemService.deleteImage(id, imageId));
+    }
+
     private InventoryItemResponse toResponse(InventoryItem item) {
+        List<InventoryItemResponse.ImageDto> imageDtos = item.images().stream()
+            .map(img -> new InventoryItemResponse.ImageDto(img.id(), img.url()))
+            .toList();
         return new InventoryItemResponse(item.id(), item.name(), item.category().name(),
-            item.description(), item.location(), item.totalQuantity(), item.availableQuantity());
+            item.description(), item.location(), item.totalQuantity(), item.availableQuantity(), imageDtos);
     }
 }

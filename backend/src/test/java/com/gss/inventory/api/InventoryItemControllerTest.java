@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.gss.inventory.api.controller.GlobalExceptionHandler;
 import com.gss.inventory.api.controller.InventoryItemController;
 import com.gss.inventory.inventory.application.InventoryItemService;
+import com.gss.inventory.inventory.infrastructure.ImageStorageService;
 import com.gss.inventory.inventory.support.InMemoryInventoryItemRepository;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -23,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(InventoryItemController.class)
 @Import({
     InventoryItemService.class,
+    ImageStorageService.class,
     GlobalExceptionHandler.class,
     InMemoryInventoryItemRepository.class
 })

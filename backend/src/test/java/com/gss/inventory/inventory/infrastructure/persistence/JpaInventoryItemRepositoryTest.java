@@ -2,6 +2,8 @@ package com.gss.inventory.inventory.infrastructure.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+
 import com.gss.inventory.inventory.domain.model.enums.ItemCategory;
 import com.gss.inventory.inventory.domain.model.records.InventoryItem;
 import com.gss.inventory.inventory.domain.repository.InventoryItemRepository;
@@ -22,7 +24,7 @@ class JpaInventoryItemRepositoryTest {
     @Test
     void savesItemAndReadsItBackFromTheDatabase() {
         InventoryItem saved = repository.save(
-            new InventoryItem(null, "Stop descender", ItemCategory.SPUSTALICE, "Spuštalica", "Polica B1", 12, 12));
+            new InventoryItem(null, "Stop descender", ItemCategory.SPUSTALICE, "Spuštalica", "Polica B1", 12, 12, List.of()));
 
         assertThat(saved.id()).isNotNull();
         assertThat(repository.findAll())
@@ -37,7 +39,7 @@ class JpaInventoryItemRepositoryTest {
     @Test
     void findByIdReturnsItem() {
         InventoryItem saved = repository.save(
-            new InventoryItem(null, "Rescue kolotura", ItemCategory.KOLOTURE, "Kolotura", "Polica C1", 16, 16));
+            new InventoryItem(null, "Rescue kolotura", ItemCategory.KOLOTURE, "Kolotura", "Polica C1", 16, 16, List.of()));
 
         assertThat(repository.findById(saved.id()))
             .isPresent()

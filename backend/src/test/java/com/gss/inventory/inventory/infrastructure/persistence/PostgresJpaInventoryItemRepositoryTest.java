@@ -2,6 +2,8 @@ package com.gss.inventory.inventory.infrastructure.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+
 import com.gss.inventory.support.PostgresContainerConfiguration;
 import com.gss.inventory.inventory.domain.model.enums.ItemCategory;
 import com.gss.inventory.inventory.domain.model.records.InventoryItem;
@@ -25,7 +27,7 @@ class PostgresJpaInventoryItemRepositoryTest {
     @Test
     void savesItemAndReadsItBackFromPostgreSql() {
         InventoryItem saved = repository.save(
-            new InventoryItem(null, "Postgres karabiner", ItemCategory.KARABINERI, "Test", "Polica A1", 5, 5));
+            new InventoryItem(null, "Postgres karabiner", ItemCategory.KARABINERI, "Test", "Polica A1", 5, 5, List.of()));
 
         assertThat(saved.id()).isNotNull();
         assertThat(repository.findAll())

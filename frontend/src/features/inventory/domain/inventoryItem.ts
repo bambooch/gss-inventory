@@ -36,6 +36,11 @@ export function categoryLabel(category: string): string {
   return itemCategoryLabels[category as ItemCategory] ?? category
 }
 
+export type ItemImage = {
+  id: number
+  url: string
+}
+
 export type InventoryItem = {
   id: number
   name: string
@@ -44,6 +49,7 @@ export type InventoryItem = {
   location: string | null
   totalQuantity: number
   availableQuantity: number
+  images: ItemImage[]
 }
 
 export type InventoryItemDraft = {

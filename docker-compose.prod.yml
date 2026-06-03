@@ -30,6 +30,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SERVER_PORT: 8080
+    volumes:
+      - uploads-data:/app/uploads
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
       interval: 30s
@@ -57,3 +59,4 @@ services:
 
 volumes:
   postgres-data:
+  uploads-data:

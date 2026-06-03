@@ -63,6 +63,8 @@ export function InventoryPage() {
               onCancelEditing={inventory.cancelEditing}
               onSubmitEdit={inventory.submitEdit}
               onDelete={inventory.removeItem}
+              onUploadImages={inventory.uploadItemImages}
+              onDeleteImage={inventory.deleteItemImage}
               errors={inventory.errors}
             />
           </div>

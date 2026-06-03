@@ -10,6 +10,8 @@ type Props = {
   onCancelEditing: () => void
   onSubmitEdit: () => Promise<void>
   onDelete: (itemId: number) => Promise<void>
+  onUploadImages: (itemId: number, files: File[]) => Promise<void>
+  onDeleteImage: (itemId: number, imageId: number) => Promise<void>
   errors: { create: string; edit: string; delete: string }
 }
 
@@ -22,6 +24,8 @@ export function InventoryList({
   onCancelEditing,
   onSubmitEdit,
   onDelete,
+  onUploadImages,
+  onDeleteImage,
   errors,
 }: Props) {
   return (
@@ -49,6 +53,8 @@ export function InventoryList({
             onCancelEditing={onCancelEditing}
             onSubmitEdit={onSubmitEdit}
             onDelete={onDelete}
+            onUploadImages={onUploadImages}
+            onDeleteImage={onDeleteImage}
           />
         ))}
       </ul>

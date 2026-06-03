@@ -5,7 +5,14 @@ import {
   type InventoryItem,
   type InventoryItemDraft,
 } from '../domain/inventoryItem'
-import { createItem, deleteItem, listItems, updateItem } from '../infrastructure/inventoryApi'
+import {
+  createItem,
+  deleteImage,
+  deleteItem,
+  listItems,
+  updateItem,
+  uploadImages,
+} from '../infrastructure/inventoryApi'
 
 type InventoryErrors = { create: string; edit: string; delete: string }
 const emptyErrors: InventoryErrors = { create: '', edit: '', delete: '' }
@@ -79,6 +86,24 @@ export function useInventory() {
     }
   }
 
+  async function uploadItemImages(itemId: number, files: File[]) {
+    try {
+      const updated = await uploadImages(itemId, files)
+      setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)))
+    } catch {
+      setErrors((e) => ({ ...e, edit: 'Nije moguće učitati fotografije.' }))
+    }
+  }
+
+  async function deleteItemImage(itemId: number, imageId: number) {
+    try {
+      const updated = await deleteImage(itemId, imageId)
+      setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)))
+    } catch {
+      setErrors((e) => ({ ...e, edit: 'Nije moguće obrisati fotografiju.' }))
+    }
+  }
+
   return {
     items,
     createDraft,
@@ -92,5 +117,7 @@ export function useInventory() {
     cancelEditing,
     submitEdit,
     removeItem,
+    uploadItemImages,
+    deleteItemImage,
   }
 }

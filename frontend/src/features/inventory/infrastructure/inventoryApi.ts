@@ -29,3 +29,20 @@ export async function deleteItem(itemId: number): Promise<void> {
   const response = await fetch(`/api/inventory/${itemId}`, { method: 'DELETE' })
   if (!response.ok) throw new Error('Could not delete item.')
 }
+
+export async function uploadImages(itemId: number, files: File[]): Promise<InventoryItem> {
+  const form = new FormData()
+  files.forEach((f) => form.append('files', f))
+  const response = await fetch(`/api/inventory/${itemId}/images`, {
+    method: 'POST',
+    body: form,
+  })
+  if (!response.ok) throw new Error('Could not upload images.')
+  return (await response.json()) as InventoryItem
+}
+
+export async function deleteImage(itemId: number, imageId: number): Promise<InventoryItem> {
+  const response = await fetch(`/api/inventory/${itemId}/images/${imageId}`, { method: 'DELETE' })
+  if (!response.ok) throw new Error('Could not delete image.')
+  return (await response.json()) as InventoryItem
+}
