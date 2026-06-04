@@ -29,6 +29,7 @@ const sampleOrder = {
 function mockApi(orders: unknown[] = [], members: unknown[] = [], items: unknown[] = []) {
   return vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
     const url = typeof input === 'string' ? input : input.toString()
+    if (url === '/api/auth/me') return jsonResponse({ username: 'testuser' })
     if (url.startsWith('/api/orders')) return jsonResponse(orders)
     if (url.startsWith('/api/members')) return jsonResponse(members)
     if (url.startsWith('/api/inventory')) return jsonResponse(items)
