@@ -78,8 +78,21 @@ jobs:
       - name: Configure known hosts
         env:
           DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
         run: |
-          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          PORT="${DEPLOY_PORT:-22}"
+          if [ "$PORT" = "22" ]; then
+            HOST_ENTRY="$DEPLOY_HOST"
+          else
+            HOST_ENTRY="[$DEPLOY_HOST]:$PORT"
+          fi
+          # If the value is a bare public key (no hostname prefix), prepend the host entry
+          if printf '%s' "$DEPLOY_KNOWN_HOSTS" | grep -qE '^(ssh-|ecdsa-)'; then
+            printf '%s %s\n' "$HOST_ENTRY" "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          else
+            printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          fi
           chmod 644 ~/.ssh/known_hosts
 
       - name: Deploy current branch

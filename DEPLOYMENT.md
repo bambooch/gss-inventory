@@ -150,9 +150,17 @@ Stop Nginx temporarily (so Certbot can bind port 80 for the ACME challenge):
 
 ```bash
 make down
-sudo certbot certonly --standalone -d $PUBLIC_DOMAIN
+sudo certbot certonly --standalone -d your.actual.domain
 make up
 ```
+
+> **Note:** `$PUBLIC_DOMAIN` is defined in `.env` but is not automatically exported to your shell.
+> Replace `your.actual.domain` with the value you set for `PUBLIC_DOMAIN` in `.env`,
+> or export it first and use `sudo -E`:
+> ```bash
+> export $(grep PUBLIC_DOMAIN .env | xargs)
+> sudo -E certbot certonly --standalone -d $PUBLIC_DOMAIN
+> ```
 
 The certificates are written to `/etc/letsencrypt/live/$PUBLIC_DOMAIN/`.
 
