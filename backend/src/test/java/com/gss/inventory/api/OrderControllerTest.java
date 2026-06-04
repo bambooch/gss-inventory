@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -16,12 +17,14 @@ import com.gss.inventory.inventory.support.InMemoryMemberRepository;
 import com.gss.inventory.inventory.support.InMemoryOrderRepository;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WithMockUser
 @WebMvcTest(OrderController.class)
 @Import({
     OrderService.class,
@@ -47,6 +50,7 @@ class OrderControllerTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void createOrderDeductsAndReturnsDetail() throws Exception {
         this.mockMvc.perform(post("/api/orders")
+                .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .content("""
                     {
@@ -68,6 +72,7 @@ class OrderControllerTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void createOrderWithInsufficientStockReturnsConflict() throws Exception {
         this.mockMvc.perform(post("/api/orders")
+                .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .content("""
                     {
@@ -82,6 +87,7 @@ class OrderControllerTest {
     @Test
     void createOrderWithoutLinesReturnsBadRequest() throws Exception {
         this.mockMvc.perform(post("/api/orders")
+                .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .content("""
                     {
@@ -97,6 +103,7 @@ class OrderControllerTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void returnOrderMarksReturned() throws Exception {
         this.mockMvc.perform(post("/api/orders")
+                .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .content("""
                     {
@@ -107,7 +114,7 @@ class OrderControllerTest {
                     """))
             .andExpect(status().isCreated());
 
-        this.mockMvc.perform(post("/api/orders/1/return"))
+        this.mockMvc.perform(post("/api/orders/1/return").with(csrf()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value("VRACENO"))
             .andExpect(jsonPath("$.returnedAt").isNotEmpty());
@@ -123,6 +130,7 @@ class OrderControllerTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void deleteOrderRemovesIt() throws Exception {
         this.mockMvc.perform(post("/api/orders")
+                .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .content("""
                     {
@@ -133,7 +141,7 @@ class OrderControllerTest {
                     """))
             .andExpect(status().isCreated());
 
-        this.mockMvc.perform(delete("/api/orders/1"))
+        this.mockMvc.perform(delete("/api/orders/1").with(csrf()))
             .andExpect(status().isNoContent());
     }
 }

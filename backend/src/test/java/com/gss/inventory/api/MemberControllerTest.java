@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.gss.inventory.api.controller.GlobalExceptionHandler;
@@ -12,11 +13,13 @@ import com.gss.inventory.inventory.application.MemberService;
 import com.gss.inventory.inventory.support.InMemoryMemberRepository;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WithMockUser
 @WebMvcTest(MemberController.class)
 @Import({
     MemberService.class,
@@ -31,6 +34,7 @@ class MemberControllerTest {
     @Test
     void createMemberReturnsCreated() throws Exception {
         this.mockMvc.perform(post("/api/members")
+                .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .content("""
                     {
@@ -48,6 +52,7 @@ class MemberControllerTest {
     @Test
     void createMemberWithoutNameReturnsBadRequest() throws Exception {
         this.mockMvc.perform(post("/api/members")
+                .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .content("""
                     {
