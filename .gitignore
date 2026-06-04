@@ -39,3 +39,7 @@ build/
 
 ### Environment ###
 .env
+
+### Generated files ###
+backup.sql
+uploads-backup.tar.gz

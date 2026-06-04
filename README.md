@@ -157,7 +157,7 @@ Production deployment uses Docker Compose with three services:
 Short version:
 
 1. Prepare a VM with Docker and Git.
-2. Clone this repository on the server, usually into `/opt/gss-zenica`.
+2. Clone this repository on the server, usually into `/opt/gss-inventory`.
 3. Create a server-side `.env` from `.env.example`.
 4. Build and start the stack with:
 
