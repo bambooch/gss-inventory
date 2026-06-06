@@ -1,11 +1,13 @@
 package com.gss.inventory;
 
+import java.util.List;
+
 import com.gss.inventory.auth.SpringDataUserRepository;
 import com.gss.inventory.auth.UserEntity;
 import com.gss.inventory.inventory.application.InventoryItemService;
 import com.gss.inventory.inventory.application.MemberService;
-import com.gss.inventory.inventory.domain.model.enums.ItemCategory;
-import com.gss.inventory.inventory.domain.model.records.InventoryItem;
+import com.gss.inventory.inventory.infrastructure.persistence.entity.ItemCategoryEntity;
+import com.gss.inventory.inventory.infrastructure.persistence.repository.SpringDataItemCategoryJpaRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,33 +27,39 @@ public class DataSeeder implements ApplicationRunner {
     private final InventoryItemService itemService;
     private final MemberService memberService;
     private final SpringDataUserRepository userRepository;
+    private final SpringDataItemCategoryJpaRepository categoryRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${app.seed.admin-password}")
     private String defaultAdminPassword;
 
+    private static final List<String[]> DEFAULT_CATEGORIES = List.of(
+        new String[]{"ALATI",                        "Alati"},
+        new String[]{"KARABINERI_PLOCICE_OSMICE_PAW","Karabineri, pločice, osmice, PAW"},
+        new String[]{"KOLOTURE",                     "Koloture"},
+        new String[]{"NOSILA",                       "Nosila"},
+        new String[]{"ODJECA_I_OBUCA",               "Odjeća i obuća"},
+        new String[]{"OPREMA_ZA_MOTORNE_SANKE",      "Oprema za motorne sanke"},
+        new String[]{"OSTALO",                       "Ostalo"},
+        new String[]{"POJASEVI_I_KACIGE",            "Pojasevi i kacige"},
+        new String[]{"RADIO_GPS",                    "Radio i GPS"},
+        new String[]{"SPRAVICE",                     "Spravice"},
+        new String[]{"TORBE_I_RUKSACI",              "Torbe i ruksaci"},
+        new String[]{"UZARIJA",                      "Užarija"},
+        new String[]{"ZIMSKA_LICNA_THE_OPREMA",      "Zimska lična THE oprema"}
+    );
+
     @Override
     public void run(ApplicationArguments args) {
         seedDefaultAdminUser();
+        seedDefaultCategories();
 
         if (!itemService.findItems(null).isEmpty()) {
             return;
         }
 
-        // ── Članovi ─────────────────────────────────────────────────────────
         memberService.createMember("Emir Rihić",  "", "GSS Zenica");
         memberService.createMember("Amar Čerim",  "", "GSS Zenica");
-
-        // ── Oprema – prema inventuri magacina (11.3.2024.) ───────────────────
-        item("OK Petzl ovalni karabiner",          ItemCategory.KARABINERI,   "Ovalni aluminijski karabiner s navojnom bravom.",              "Magacin GSS", 20);
-        item("Petzl Protec zaštita za uže",        ItemCategory.RAZNO,        "Zaštita za uže od oštećenja na ivicama.",                     "Magacin GSS",  4);
-        item("Petzl Stop descender",               ItemCategory.SPUSTALICE,   "Samokočeća spuštalica za jedno uže.",                         "Magacin GSS",  3);
-        item("Sredstvo za čišćenje užeta",         ItemCategory.RAZNO,        "Sredstvo za čišćenje i njegu užadi.",                         "Magacin GSS",  1);
-        item("Petzl Grillon 5m",                   ItemCategory.UZAD_I_TRAKE, "Pozicioni lanyard dužine 5 m za rad na visini.",              "Magacin GSS",  5);
-        item("Petzl nožna penjalica desna",        ItemCategory.HVATALJKE,    "Desna nožna hvataljka za napredovanje uz uže.",               "Magacin GSS",  1);
-        item("Petzl nožna penjalica lijeva",       ItemCategory.HVATALJKE,    "Lijeva nožna hvataljka za napredovanje uz uže.",              "Magacin GSS",  1);
-        item("Petzl nožna gurtna",                 ItemCategory.POJASEVI,     "Nožna gurtna (stirrup) uz nožnu penjalicu.",                  "Magacin GSS",  5);
-        item("Pločica Petzl Coeur Stainless 10mm", ItemCategory.SIDRISTA,     "Čelična pločica za polutrajna sidrišta, promjer 10 mm.",      "Magacin GSS", 20);
     }
 
     private void seedDefaultAdminUser() {
@@ -67,8 +75,14 @@ public class DataSeeder implements ApplicationRunner {
         log.warn("================================================================");
     }
 
-    private InventoryItem item(String name, ItemCategory category, String description,
-            String location, int quantity) {
-        return itemService.createItem(name, category, description, location, quantity);
+    private void seedDefaultCategories() {
+        if (categoryRepository.count() > 0) return;
+
+        for (int i = 0; i < DEFAULT_CATEGORIES.size(); i++) {
+            String[] cat = DEFAULT_CATEGORIES.get(i);
+            categoryRepository.save(new ItemCategoryEntity(null, cat[0], cat[1], i));
+        }
+
+        log.info("Seeded {} default categories", DEFAULT_CATEGORIES.size());
     }
 }

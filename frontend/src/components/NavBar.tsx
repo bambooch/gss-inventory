@@ -30,6 +30,9 @@ export function NavBar() {
             <NavLink to="/inventar" className={linkClass}>
               Inventar
             </NavLink>
+            <NavLink to="/kategorije" className={linkClass}>
+              Kategorije
+            </NavLink>
             <NavLink to="/clanovi" className={linkClass}>
               Članovi
             </NavLink>

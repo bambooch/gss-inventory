@@ -1,39 +1,8 @@
-export const itemCategoryOptions = [
-  'UZAD_I_TRAKE',
-  'KARABINERI',
-  'SPUSTALICE',
-  'KOLOTURE',
-  'HVATALJKE',
-  'POJASEVI',
-  'KACIGE',
-  'NOSILA',
-  'MEDICINSKA',
-  'SIDRISTA',
-  'LAVINSKA',
-  'RASVJETA',
-  'RAZNO',
-] as const
-
-export type ItemCategory = (typeof itemCategoryOptions)[number]
-
-export const itemCategoryLabels: Record<ItemCategory, string> = {
-  UZAD_I_TRAKE: 'Užad i trake',
-  KARABINERI: 'Karabineri i spojnice',
-  SPUSTALICE: 'Spuštalice',
-  KOLOTURE: 'Koloture',
-  HVATALJKE: 'Hvataljke',
-  POJASEVI: 'Pojasevi',
-  KACIGE: 'Kacige',
-  NOSILA: 'Nosila i imobilizacija',
-  MEDICINSKA: 'Medicinska oprema',
-  SIDRISTA: 'Sidrišta i klinovi',
-  LAVINSKA: 'Lavinska oprema',
-  RASVJETA: 'Rasvjeta',
-  RAZNO: 'Razno',
-}
-
-export function categoryLabel(category: string): string {
-  return itemCategoryLabels[category as ItemCategory] ?? category
+export type ItemCategory = {
+  id: number
+  name: string
+  label: string
+  sortOrder: number
 }
 
 export type ItemImage = {
@@ -44,7 +13,7 @@ export type ItemImage = {
 export type InventoryItem = {
   id: number
   name: string
-  category: string
+  categories: ItemCategory[]
   description: string | null
   location: string | null
   totalQuantity: number
@@ -54,7 +23,7 @@ export type InventoryItem = {
 
 export type InventoryItemDraft = {
   name: string
-  category: '' | ItemCategory
+  categoryIds: number[]
   description: string
   location: string
   totalQuantity: number
@@ -62,7 +31,7 @@ export type InventoryItemDraft = {
 
 export const emptyInventoryItemDraft: InventoryItemDraft = {
   name: '',
-  category: '',
+  categoryIds: [],
   description: '',
   location: '',
   totalQuantity: 1,

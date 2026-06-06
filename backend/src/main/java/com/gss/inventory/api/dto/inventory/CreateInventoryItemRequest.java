@@ -1,16 +1,14 @@
 package com.gss.inventory.api.dto.inventory;
 
-import com.gss.inventory.inventory.domain.model.enums.ItemCategory;
+import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 public record CreateInventoryItemRequest(
     @NotBlank String name,
-    @NotNull ItemCategory category,
+    List<Long> categoryIds,
     String description,
     String location,
     @PositiveOrZero int totalQuantity
-) {
-}
+) {}

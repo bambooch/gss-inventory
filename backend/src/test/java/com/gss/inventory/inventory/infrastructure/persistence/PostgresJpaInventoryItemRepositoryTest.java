@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import com.gss.inventory.support.PostgresContainerConfiguration;
-import com.gss.inventory.inventory.domain.model.enums.ItemCategory;
 import com.gss.inventory.inventory.domain.model.records.InventoryItem;
 import com.gss.inventory.inventory.domain.repository.InventoryItemRepository;
 import com.gss.inventory.inventory.infrastructure.persistence.repository.JpaInventoryItemRepository;
@@ -27,14 +26,14 @@ class PostgresJpaInventoryItemRepositoryTest {
     @Test
     void savesItemAndReadsItBackFromPostgreSql() {
         InventoryItem saved = repository.save(
-            new InventoryItem(null, "Postgres karabiner", ItemCategory.KARABINERI, "Test", "Polica A1", 5, 5, List.of()));
+            new InventoryItem(null, "Postgres karabiner", List.of(), "Test", "Polica A1", 5, 5, List.of()));
 
         assertThat(saved.id()).isNotNull();
         assertThat(repository.findAll())
             .filteredOn(i -> "Postgres karabiner".equals(i.name()))
             .singleElement()
             .satisfies(i -> {
-                assertThat(i.category()).isEqualTo(ItemCategory.KARABINERI);
+                assertThat(i.categories()).isEmpty();
                 assertThat(i.totalQuantity()).isEqualTo(5);
             });
     }

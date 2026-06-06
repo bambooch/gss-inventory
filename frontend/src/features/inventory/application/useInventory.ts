@@ -20,7 +20,7 @@ const emptyErrors: InventoryErrors = { create: '', edit: '', delete: '' }
 function toDraft(item: InventoryItem): InventoryItemDraft {
   return {
     name: item.name,
-    category: item.category as InventoryItemDraft['category'],
+    categoryIds: item.categories.map((c) => c.id),
     description: item.description ?? '',
     location: item.location ?? '',
     totalQuantity: item.totalQuantity,

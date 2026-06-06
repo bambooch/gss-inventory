@@ -1,11 +1,15 @@
 package com.gss.inventory.inventory.infrastructure.persistence.repository;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.gss.inventory.inventory.domain.model.records.InventoryItem;
 import com.gss.inventory.inventory.domain.repository.InventoryItemRepository;
 import com.gss.inventory.inventory.infrastructure.persistence.entity.InventoryItemEntity;
+import com.gss.inventory.inventory.infrastructure.persistence.entity.ItemCategoryEntity;
 import com.gss.inventory.inventory.infrastructure.persistence.entity.ItemImageEntity;
 
 import org.springframework.context.annotation.Primary;
@@ -16,15 +20,19 @@ import org.springframework.stereotype.Repository;
 public class JpaInventoryItemRepository implements InventoryItemRepository {
 
     private final SpringDataInventoryItemJpaRepository repository;
+    private final SpringDataItemCategoryJpaRepository categoryRepository;
 
-    public JpaInventoryItemRepository(SpringDataInventoryItemJpaRepository repository) {
+    public JpaInventoryItemRepository(SpringDataInventoryItemJpaRepository repository,
+            SpringDataItemCategoryJpaRepository categoryRepository) {
         this.repository = repository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
     public InventoryItem save(InventoryItem item) {
-        InventoryItemEntity entity = new InventoryItemEntity(null, item.name(), item.category(),
+        InventoryItemEntity entity = new InventoryItemEntity(null, item.name(),
             item.description(), item.location(), item.totalQuantity(), item.availableQuantity());
+        entity.setCategories(resolveEntities(item.categories()));
         return toDomain(repository.save(entity));
     }
 
@@ -32,11 +40,11 @@ public class JpaInventoryItemRepository implements InventoryItemRepository {
     public InventoryItem update(InventoryItem item) {
         InventoryItemEntity entity = repository.findById(item.id()).orElseThrow();
         entity.setName(item.name());
-        entity.setCategory(item.category());
         entity.setDescription(item.description());
         entity.setLocation(item.location());
         entity.setTotalQuantity(item.totalQuantity());
         entity.setAvailableQuantity(item.availableQuantity());
+        entity.setCategories(resolveEntities(item.categories()));
         return toDomain(repository.save(entity));
     }
 
@@ -79,11 +87,21 @@ public class JpaInventoryItemRepository implements InventoryItemRepository {
         });
     }
 
+    private Set<ItemCategoryEntity> resolveEntities(List<InventoryItem.Category> categories) {
+        if (categories == null || categories.isEmpty()) return new LinkedHashSet<>();
+        List<Long> ids = categories.stream().map(InventoryItem.Category::id).toList();
+        return categoryRepository.findAllById(ids).stream()
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
     private InventoryItem toDomain(InventoryItemEntity entity) {
+        List<InventoryItem.Category> categories = entity.getCategories().stream()
+            .map(c -> new InventoryItem.Category(c.getId(), c.getName(), c.getLabel()))
+            .toList();
         List<InventoryItem.Image> images = entity.getImages().stream()
             .map(img -> new InventoryItem.Image(img.getId(), "/api/uploads/" + img.getFilePath()))
             .toList();
-        return new InventoryItem(entity.getId(), entity.getName(), entity.getCategory(),
+        return new InventoryItem(entity.getId(), entity.getName(), categories,
             entity.getDescription(), entity.getLocation(), entity.getTotalQuantity(),
             entity.getAvailableQuantity(), images);
     }

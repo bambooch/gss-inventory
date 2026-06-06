@@ -40,7 +40,7 @@ class PersistedOrderControllerTest {
                 .content("""
                     {
                       "name": "Perzistirani karabiner",
-                      "category": "KARABINERI",
+                      "categoryIds": [],
                       "description": "Test",
                       "location": "Polica A1",
                       "totalQuantity": 9

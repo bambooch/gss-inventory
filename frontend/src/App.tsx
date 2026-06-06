@@ -7,6 +7,7 @@ import { LoginPage } from './features/auth/LoginPage'
 import { ProtectedRoute } from './features/auth/ProtectedRoute'
 import { ResetPage } from './ResetPage'
 import { NavBar } from './components/NavBar'
+import { CategoryManagementPage } from './features/inventory/ui/CategoryManagementPage'
 import { InventoryPage } from './features/inventory/ui/InventoryPage'
 import { MembersPage } from './features/members/ui/MembersPage'
 import { OrderDetailPage } from './features/orders/ui/OrderDetailPage'
@@ -75,6 +76,7 @@ function AppShell() {
           <Route path="/zaduzenja" element={<OrdersPage />} />
           <Route path="/zaduzenja/:id" element={<OrderDetailPage />} />
           <Route path="/inventar" element={<InventoryPage />} />
+          <Route path="/kategorije" element={<CategoryManagementPage />} />
           <Route path="/clanovi" element={<MembersPage />} />
         </Routes>
       </main>

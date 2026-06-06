@@ -4,18 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.gss.inventory.inventory.domain.model.enums.ItemCategory;
 import com.gss.inventory.inventory.domain.model.records.InventoryItem;
 import com.gss.inventory.inventory.domain.repository.InventoryItemRepository;
 
 public class InMemoryInventoryItemRepository implements InventoryItemRepository {
 
+    private static final InventoryItem.Category KARABINERI  = new InventoryItem.Category(14L, "KARABINERI",  "Karabineri");
+    private static final InventoryItem.Category SPUSTALICE  = new InventoryItem.Category(15L, "SPUSTALICE",  "Spuštalice");
+    private static final InventoryItem.Category KOLOTURE    = new InventoryItem.Category(3L,  "KOLOTURE",    "Koloture");
+    private static final InventoryItem.Category UZAD_I_TRAKE = new InventoryItem.Category(17L, "UZAD_I_TRAKE", "Užad i trake");
+    private static final InventoryItem.Category KACIGE      = new InventoryItem.Category(18L, "KACIGE",      "Kacige");
+
     private final List<InventoryItem> items = new ArrayList<>(List.of(
-        new InventoryItem(1L, "HMS karabiner sa navojem", ItemCategory.KARABINERI, "Aluminijski HMS karabiner.", "Polica A1", 40, 40, List.of()),
-        new InventoryItem(2L, "Stop descender", ItemCategory.SPUSTALICE, "Samokočeća spuštalica.", "Polica B1", 12, 12, List.of()),
-        new InventoryItem(3L, "Rescue kolotura", ItemCategory.KOLOTURE, "Spasilačka kolotura.", "Polica C1", 16, 16, List.of()),
-        new InventoryItem(4L, "Statičko uže 10.5 mm", ItemCategory.UZAD_I_TRAKE, "Polustatičko uže.", "Ormar U1", 10, 10, List.of()),
-        new InventoryItem(5L, "Zaštitna kaciga", ItemCategory.KACIGE, "Spasilačka kaciga.", "Polica F1", 25, 25, List.of())
+        new InventoryItem(1L, "HMS karabiner sa navojem", List.of(KARABINERI), "Aluminijski HMS karabiner.", "Polica A1", 40, 40, List.of()),
+        new InventoryItem(2L, "Stop descender",           List.of(SPUSTALICE), "Samokočeća spuštalica.",    "Polica B1", 12, 12, List.of()),
+        new InventoryItem(3L, "Rescue kolotura",          List.of(KOLOTURE),   "Spasilačka kolotura.",      "Polica C1", 16, 16, List.of()),
+        new InventoryItem(4L, "Statičko uže 10.5 mm",    List.of(UZAD_I_TRAKE),"Polustatičko uže.",        "Ormar U1",  10, 10, List.of()),
+        new InventoryItem(5L, "Zaštitna kaciga",          List.of(KACIGE),     "Spasilačka kaciga.",        "Polica F1", 25, 25, List.of())
     ));
 
     @Override
@@ -26,7 +31,7 @@ public class InMemoryInventoryItemRepository implements InventoryItemRepository 
             .mapToLong(Long::longValue)
             .max()
             .orElse(0L) + 1;
-        InventoryItem saved = new InventoryItem(nextId, item.name(), item.category(), item.description(),
+        InventoryItem saved = new InventoryItem(nextId, item.name(), item.categories(), item.description(),
             item.location(), item.totalQuantity(), item.availableQuantity(), List.of());
         items.add(saved);
         return saved;

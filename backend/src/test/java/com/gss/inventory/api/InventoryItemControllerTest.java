@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -12,6 +13,7 @@ import com.gss.inventory.api.controller.InventoryItemController;
 import com.gss.inventory.inventory.application.InventoryItemService;
 import com.gss.inventory.inventory.infrastructure.ImageStorageService;
 import com.gss.inventory.inventory.support.InMemoryInventoryItemRepository;
+import com.gss.inventory.inventory.support.InMemoryItemCategoryRepository;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -26,8 +28,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     InventoryItemService.class,
     ImageStorageService.class,
     GlobalExceptionHandler.class,
-    InMemoryInventoryItemRepository.class
+    InMemoryInventoryItemRepository.class,
+    InMemoryItemCategoryRepository.class
 })
+@WithMockUser
 class InventoryItemControllerTest {
 
     @Autowired
@@ -39,7 +43,7 @@ class InventoryItemControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$[0].name").value("HMS karabiner sa navojem"))
-            .andExpect(jsonPath("$[0].category").value("KARABINERI"));
+            .andExpect(jsonPath("$[0].categories[0].name").value("KARABINERI"));
     }
 
     @Test
@@ -72,18 +76,19 @@ class InventoryItemControllerTest {
                 .contentType(APPLICATION_JSON)
                 .content("""
                     {
-                    "name": "Tibloc hvataljka",
-                    "category": "HVATALJKE",
-                    "description": "Mini hvataljka",
-                    "location": "Polica D2",
-                    "totalQuantity": 7
+                      "name": "Tibloc hvataljka",
+                      "categoryIds": [],
+                      "description": "Mini hvataljka",
+                      "location": "Polica D2",
+                      "totalQuantity": 7
                     }
                     """))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").isNumber())
             .andExpect(jsonPath("$.name").value("Tibloc hvataljka"))
             .andExpect(jsonPath("$.totalQuantity").value(7))
-            .andExpect(jsonPath("$.availableQuantity").value(7));
+            .andExpect(jsonPath("$.availableQuantity").value(7))
+            .andExpect(jsonPath("$.categories").isArray());
     }
 
     @Test
@@ -92,8 +97,8 @@ class InventoryItemControllerTest {
                 .contentType(APPLICATION_JSON)
                 .content("""
                     {
-                    "category": "HVATALJKE",
-                    "totalQuantity": 7
+                      "categoryIds": [],
+                      "totalQuantity": 7
                     }
                     """))
             .andExpect(status().isBadRequest());
@@ -106,11 +111,11 @@ class InventoryItemControllerTest {
                 .contentType(APPLICATION_JSON)
                 .content("""
                     {
-                    "name": "HMS karabiner (ažuriran)",
-                    "category": "KARABINERI",
-                    "description": "Novi opis",
-                    "location": "Polica A1",
-                    "totalQuantity": 50
+                      "name": "HMS karabiner (ažuriran)",
+                      "categoryIds": [14],
+                      "description": "Novi opis",
+                      "location": "Polica A1",
+                      "totalQuantity": 50
                     }
                     """))
             .andExpect(status().isOk())

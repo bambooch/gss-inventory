@@ -5,7 +5,7 @@ import {
   primaryButtonClasses,
   secondaryButtonClasses,
 } from '../../../../ui/theme'
-import { categoryLabel, type InventoryItem, type InventoryItemDraft } from '../../domain/inventoryItem'
+import type { ItemCategory, InventoryItem, InventoryItemDraft } from '../../domain/inventoryItem'
 import { ImageGallery } from './ImageGallery'
 import { InventoryFormFields } from './InventoryFormFields'
 
@@ -13,6 +13,7 @@ type Props = {
   item: InventoryItem
   editingItemId: number | null
   editDraft: InventoryItemDraft
+  availableCategories: ItemCategory[]
   onEditDraftChange: (draft: InventoryItemDraft) => void
   onStartEditing: (item: InventoryItem) => void
   onCancelEditing: () => void
@@ -26,6 +27,7 @@ export function InventoryListItem({
   item,
   editingItemId,
   editDraft,
+  availableCategories,
   onEditDraftChange,
   onStartEditing,
   onCancelEditing,
@@ -64,12 +66,17 @@ export function InventoryListItem({
       {isEditing ? (
         <div className="space-y-4">
           <form className="space-y-3" onSubmit={(e) => void handleSubmit(e)}>
-            <InventoryFormFields draft={editDraft} idPrefix={`edit-item-${item.id}`} onDraftChange={onEditDraftChange} />
+            <InventoryFormFields
+              draft={editDraft}
+              idPrefix={`edit-item-${item.id}`}
+              availableCategories={availableCategories}
+              onDraftChange={onEditDraftChange}
+            />
             <div className="flex gap-2">
               <button
                 className={primaryButtonClasses}
                 type="submit"
-                disabled={!editDraft.name.trim() || editDraft.category === ''}
+                disabled={!editDraft.name.trim()}
               >
                 Spremi izmjene
               </button>
@@ -102,7 +109,6 @@ export function InventoryListItem({
                 </div>
               ))}
 
-              {/* Upload button */}
               <label
                 className={`flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed text-slate-400 transition
                   ${uploading ? 'border-slate-200 opacity-50 cursor-not-allowed' : 'border-slate-300 hover:border-red-400 hover:text-red-500'}`}
@@ -163,9 +169,14 @@ export function InventoryListItem({
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-semibold text-slate-800">{item.name}</span>
-                <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
-                  {categoryLabel(item.category)}
-                </span>
+                {item.categories.map((cat) => (
+                  <span
+                    key={cat.id}
+                    className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600"
+                  >
+                    {cat.label}
+                  </span>
+                ))}
               </div>
               {item.location ? <p className="mt-1 text-sm text-slate-500">{item.location}</p> : null}
               {item.description ? <p className="mt-1 text-sm text-slate-400">{item.description}</p> : null}

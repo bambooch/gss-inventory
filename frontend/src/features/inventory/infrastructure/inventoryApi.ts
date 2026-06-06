@@ -9,7 +9,13 @@ export async function createItem(draft: InventoryItemDraft): Promise<InventoryIt
   const response = await fetch('/api/inventory', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(draft),
+    body: JSON.stringify({
+      name: draft.name,
+      categoryIds: draft.categoryIds,
+      description: draft.description,
+      location: draft.location,
+      totalQuantity: draft.totalQuantity,
+    }),
   })
   if (!response.ok) throw new Error('Could not create item.')
   return (await response.json()) as InventoryItem
@@ -19,7 +25,13 @@ export async function updateItem(itemId: number, draft: InventoryItemDraft): Pro
   const response = await fetch(`/api/inventory/${itemId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(draft),
+    body: JSON.stringify({
+      name: draft.name,
+      categoryIds: draft.categoryIds,
+      description: draft.description,
+      location: draft.location,
+      totalQuantity: draft.totalQuantity,
+    }),
   })
   if (!response.ok) throw new Error('Could not update item.')
   return (await response.json()) as InventoryItem

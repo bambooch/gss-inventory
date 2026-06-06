@@ -64,7 +64,7 @@ public class OrderService {
                 throw new InsufficientStockException(item.name(), request.quantity(), item.availableQuantity());
             }
 
-            itemRepository.update(new InventoryItem(item.id(), item.name(), item.category(), item.description(),
+            itemRepository.update(new InventoryItem(item.id(), item.name(), item.categories(), item.description(),
                 item.location(), item.totalQuantity(), item.availableQuantity() - request.quantity(), item.images()));
 
             lines.add(new OrderLine(null, item.id(), item.name(), request.quantity()));
@@ -102,7 +102,7 @@ public class OrderService {
         for (OrderLine line : order.lines()) {
             itemRepository.findById(line.itemId()).ifPresent(item -> {
                 int restored = Math.min(item.availableQuantity() + line.quantity(), item.totalQuantity());
-                itemRepository.update(new InventoryItem(item.id(), item.name(), item.category(),
+                itemRepository.update(new InventoryItem(item.id(), item.name(), item.categories(),
                     item.description(), item.location(), item.totalQuantity(), restored, item.images()));
             });
         }

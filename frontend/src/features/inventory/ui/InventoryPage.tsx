@@ -1,10 +1,12 @@
 import { cardClasses } from '../../../ui/theme'
+import { useCategories } from '../application/useCategories'
 import { useInventory } from '../application/useInventory'
 import { InventoryCreateForm } from './components/InventoryCreateForm'
 import { InventoryList } from './components/InventoryList'
 
 export function InventoryPage() {
   const inventory = useInventory()
+  const { categories } = useCategories()
 
   const totalItems = inventory.items.length
   const totalUnits = inventory.items.reduce((sum, item) => sum + item.totalQuantity, 0)
@@ -40,6 +42,7 @@ export function InventoryPage() {
           <div className="mt-4">
             <InventoryCreateForm
               draft={inventory.createDraft}
+              availableCategories={categories}
               onDraftChange={inventory.setCreateDraft}
               onSubmit={inventory.submitCreate}
             />
@@ -58,6 +61,7 @@ export function InventoryPage() {
               items={inventory.items}
               editingItemId={inventory.editingItemId}
               editDraft={inventory.editDraft}
+              availableCategories={categories}
               onEditDraftChange={inventory.setEditDraft}
               onStartEditing={inventory.startEditing}
               onCancelEditing={inventory.cancelEditing}

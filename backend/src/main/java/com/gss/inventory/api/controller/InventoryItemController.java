@@ -6,7 +6,6 @@ import com.gss.inventory.api.dto.inventory.CreateInventoryItemRequest;
 import com.gss.inventory.api.dto.inventory.InventoryItemResponse;
 import com.gss.inventory.api.dto.inventory.UpdateInventoryItemRequest;
 import com.gss.inventory.inventory.application.InventoryItemService;
-import com.gss.inventory.inventory.domain.model.enums.ItemCategory;
 import com.gss.inventory.inventory.domain.model.records.InventoryItem;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,9 +37,9 @@ public class InventoryItemController {
         this.itemService = itemService;
     }
 
-    @Operation(summary = "List inventory items")
+    @Operation(summary = "List inventory items, optionally filtered by category name")
     @GetMapping
-    public List<InventoryItemResponse> getItems(@RequestParam(required = false) ItemCategory category) {
+    public List<InventoryItemResponse> getItems(@RequestParam(required = false) String category) {
         return itemService.findItems(category).stream().map(this::toResponse).toList();
     }
 
@@ -54,16 +53,16 @@ public class InventoryItemController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public InventoryItemResponse createItem(@Valid @RequestBody CreateInventoryItemRequest request) {
-        return toResponse(itemService.createItem(request.name(), request.category(), request.description(),
-            request.location(), request.totalQuantity()));
+        return toResponse(itemService.createItem(request.name(), request.categoryIds(),
+            request.description(), request.location(), request.totalQuantity()));
     }
 
     @Operation(summary = "Update an inventory item")
     @PutMapping("/{id}")
     public InventoryItemResponse updateItem(@PathVariable Long id,
             @Valid @RequestBody UpdateInventoryItemRequest request) {
-        return toResponse(itemService.updateItem(id, request.name(), request.category(), request.description(),
-            request.location(), request.totalQuantity()));
+        return toResponse(itemService.updateItem(id, request.name(), request.categoryIds(),
+            request.description(), request.location(), request.totalQuantity()));
     }
 
     @Operation(summary = "Delete an inventory item")
@@ -87,10 +86,13 @@ public class InventoryItemController {
     }
 
     private InventoryItemResponse toResponse(InventoryItem item) {
+        List<InventoryItemResponse.CategoryDto> categoryDtos = item.categories().stream()
+            .map(c -> new InventoryItemResponse.CategoryDto(c.id(), c.name(), c.label()))
+            .toList();
         List<InventoryItemResponse.ImageDto> imageDtos = item.images().stream()
             .map(img -> new InventoryItemResponse.ImageDto(img.id(), img.url()))
             .toList();
-        return new InventoryItemResponse(item.id(), item.name(), item.category().name(),
+        return new InventoryItemResponse(item.id(), item.name(), categoryDtos,
             item.description(), item.location(), item.totalQuantity(), item.availableQuantity(), imageDtos);
     }
 }

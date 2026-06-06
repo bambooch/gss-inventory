@@ -1,10 +1,11 @@
-import type { InventoryItem, InventoryItemDraft } from '../../domain/inventoryItem'
+import type { ItemCategory, InventoryItem, InventoryItemDraft } from '../../domain/inventoryItem'
 import { InventoryListItem } from './InventoryListItem'
 
 type Props = {
   items: InventoryItem[]
   editingItemId: number | null
   editDraft: InventoryItemDraft
+  availableCategories: ItemCategory[]
   onEditDraftChange: (draft: InventoryItemDraft) => void
   onStartEditing: (item: InventoryItem) => void
   onCancelEditing: () => void
@@ -19,6 +20,7 @@ export function InventoryList({
   items,
   editingItemId,
   editDraft,
+  availableCategories,
   onEditDraftChange,
   onStartEditing,
   onCancelEditing,
@@ -48,6 +50,7 @@ export function InventoryList({
             item={item}
             editingItemId={editingItemId}
             editDraft={editDraft}
+            availableCategories={availableCategories}
             onEditDraftChange={onEditDraftChange}
             onStartEditing={onStartEditing}
             onCancelEditing={onCancelEditing}

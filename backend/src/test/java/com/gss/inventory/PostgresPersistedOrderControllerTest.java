@@ -36,7 +36,7 @@ class PostgresPersistedOrderControllerTest {
                 .content("""
                     {
                       "name": "Postgres perzistirani karabiner",
-                      "category": "KARABINERI",
+                      "categoryIds": [],
                       "description": "Test",
                       "location": "Polica A1",
                       "totalQuantity": 4

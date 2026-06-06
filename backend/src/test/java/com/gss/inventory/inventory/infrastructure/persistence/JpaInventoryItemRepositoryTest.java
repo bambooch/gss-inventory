@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import com.gss.inventory.inventory.domain.model.enums.ItemCategory;
 import com.gss.inventory.inventory.domain.model.records.InventoryItem;
 import com.gss.inventory.inventory.domain.repository.InventoryItemRepository;
 import com.gss.inventory.inventory.infrastructure.persistence.repository.JpaInventoryItemRepository;
@@ -24,14 +23,14 @@ class JpaInventoryItemRepositoryTest {
     @Test
     void savesItemAndReadsItBackFromTheDatabase() {
         InventoryItem saved = repository.save(
-            new InventoryItem(null, "Stop descender", ItemCategory.SPUSTALICE, "Spuštalica", "Polica B1", 12, 12, List.of()));
+            new InventoryItem(null, "Stop descender", List.of(), "Spuštalica", "Polica B1", 12, 12, List.of()));
 
         assertThat(saved.id()).isNotNull();
         assertThat(repository.findAll())
             .filteredOn(i -> "Stop descender".equals(i.name()))
             .singleElement()
             .satisfies(i -> {
-                assertThat(i.category()).isEqualTo(ItemCategory.SPUSTALICE);
+                assertThat(i.categories()).isEmpty();
                 assertThat(i.availableQuantity()).isEqualTo(12);
             });
     }
@@ -39,7 +38,7 @@ class JpaInventoryItemRepositoryTest {
     @Test
     void findByIdReturnsItem() {
         InventoryItem saved = repository.save(
-            new InventoryItem(null, "Rescue kolotura", ItemCategory.KOLOTURE, "Kolotura", "Polica C1", 16, 16, List.of()));
+            new InventoryItem(null, "Rescue kolotura", List.of(), "Kolotura", "Polica C1", 16, 16, List.of()));
 
         assertThat(repository.findById(saved.id()))
             .isPresent()

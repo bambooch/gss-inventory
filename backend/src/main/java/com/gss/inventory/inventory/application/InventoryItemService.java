@@ -5,9 +5,9 @@ import java.util.List;
 
 import com.gss.inventory.inventory.domain.exception.ImageNotFoundException;
 import com.gss.inventory.inventory.domain.exception.InventoryItemNotFoundException;
-import com.gss.inventory.inventory.domain.model.enums.ItemCategory;
 import com.gss.inventory.inventory.domain.model.records.InventoryItem;
 import com.gss.inventory.inventory.domain.repository.InventoryItemRepository;
+import com.gss.inventory.inventory.domain.repository.ItemCategoryRepository;
 import com.gss.inventory.inventory.infrastructure.ImageStorageService;
 
 import org.springframework.stereotype.Service;
@@ -17,35 +17,42 @@ import org.springframework.web.multipart.MultipartFile;
 public class InventoryItemService {
 
     private final InventoryItemRepository itemRepository;
+    private final ItemCategoryRepository categoryRepository;
     private final ImageStorageService storageService;
 
-    public InventoryItemService(InventoryItemRepository itemRepository, ImageStorageService storageService) {
+    public InventoryItemService(InventoryItemRepository itemRepository,
+            ItemCategoryRepository categoryRepository,
+            ImageStorageService storageService) {
         this.itemRepository = itemRepository;
+        this.categoryRepository = categoryRepository;
         this.storageService = storageService;
     }
 
-    public InventoryItem createItem(String name, ItemCategory category, String description,
+    public InventoryItem createItem(String name, List<Long> categoryIds, String description,
             String location, int totalQuantity) {
+        List<InventoryItem.Category> categories = categoryRepository.findAllByIds(categoryIds);
         return itemRepository.save(
-            new InventoryItem(null, name, category, description, location, totalQuantity, totalQuantity, List.of()));
+            new InventoryItem(null, name, categories, description, location, totalQuantity, totalQuantity, List.of()));
     }
 
-    public InventoryItem updateItem(Long id, String name, ItemCategory category, String description,
+    public InventoryItem updateItem(Long id, String name, List<Long> categoryIds, String description,
             String location, int totalQuantity) {
         InventoryItem existing = findById(id);
         int inUse = existing.totalQuantity() - existing.availableQuantity();
         int newAvailable = Math.max(totalQuantity - inUse, 0);
+        List<InventoryItem.Category> categories = categoryRepository.findAllByIds(categoryIds);
         return itemRepository.update(
-            new InventoryItem(id, name, category, description, location, totalQuantity, newAvailable, List.of()));
+            new InventoryItem(id, name, categories, description, location, totalQuantity, newAvailable, List.of()));
     }
 
     public void deleteItem(Long id) {
         itemRepository.deleteById(id);
     }
 
-    public List<InventoryItem> findItems(ItemCategory category) {
+    public List<InventoryItem> findItems(String categoryName) {
         return itemRepository.findAll().stream()
-            .filter(item -> category == null || item.category() == category)
+            .filter(item -> categoryName == null || item.categories().stream()
+                .anyMatch(c -> c.name().equals(categoryName)))
             .toList();
     }
 
