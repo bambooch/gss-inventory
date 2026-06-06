@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "make restart",
+            "shell": "powershell",
+            "timeout": 300,
+            "statusMessage": "Rebuilding and restarting Docker..."
+          }
+        ]
+      }
+    ]
+  }
+}
