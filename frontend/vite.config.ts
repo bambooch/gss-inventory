@@ -11,6 +11,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['gss-logo.png', 'apple-touch-icon.png'],
+      workbox: {
+        clientsClaim: true,
+        skipWaiting: true,
+      },
       manifest: {
         name: 'GSS Zenica – Inventar i zaduženja',
         short_name: 'GSS Inventar',

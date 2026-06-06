@@ -5,6 +5,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './features/auth/AuthContext'
 import { LoginPage } from './features/auth/LoginPage'
 import { ProtectedRoute } from './features/auth/ProtectedRoute'
+import { ResetPage } from './ResetPage'
 import { NavBar } from './components/NavBar'
 import { InventoryPage } from './features/inventory/ui/InventoryPage'
 import { MembersPage } from './features/members/ui/MembersPage'
@@ -27,6 +28,12 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
             <pre className="mt-4 overflow-auto rounded-lg bg-slate-900 p-4 text-left text-xs text-slate-300">
               {(this.state.error as Error).message}
             </pre>
+            <a
+              href="/reset"
+              className="mt-6 inline-block rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
+            >
+              Očisti keš i pokušaj ponovo
+            </a>
           </div>
         </div>
       )
@@ -42,6 +49,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/reset" element={<ResetPage />} />
           <Route
             path="/*"
             element={
