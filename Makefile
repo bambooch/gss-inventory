@@ -8,10 +8,10 @@ help: ## Show available commands
 # ── Local development ──────────────────────────────────────────────────────────
 
 db: ## Start local PostgreSQL only
-	docker compose up -d
+	docker compose --env-file .env up -d
 
 dev-back: ## Run the Spring Boot backend (requires db)
-	cd backend && ./mvnw spring-boot:run
+	cd backend && .\mvnw spring-boot:run "-Dspring-boot.run.arguments=--spring.profiles.active=local"
 
 dev-front: ## Run the Vite dev server (proxies /api → localhost:8080)
 	cd frontend && npm run dev
@@ -43,7 +43,7 @@ ps: ## Show production container status
 # ── Utilities ──────────────────────────────────────────────────────────────────
 
 test: ## Run backend tests
-	cd backend && ./mvnw test
+	cd backend && .\mvnw test
 
 backup: ## Dump the production database to ./backup.sql
 	docker exec gss-inventory-postgres pg_dump \
