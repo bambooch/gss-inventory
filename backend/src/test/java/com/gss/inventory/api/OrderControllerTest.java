@@ -101,6 +101,23 @@ class OrderControllerTest {
 
     @Test
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+    void createOrderWithoutDueDateSucceeds() throws Exception {
+        this.mockMvc.perform(post("/api/orders")
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {
+                    "memberId": 1,
+                    "lines": [ { "itemId": 1, "quantity": 3 } ]
+                    }
+                    """))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").isNumber())
+            .andExpect(jsonPath("$.dueDate").isEmpty());
+    }
+
+    @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void returnOrderMarksReturned() throws Exception {
         this.mockMvc.perform(post("/api/orders")
                 .with(csrf())

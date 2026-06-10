@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import com.gss.inventory.inventory.application.OrderService.LineRequest;
 import com.gss.inventory.inventory.domain.exception.InsufficientStockException;
@@ -26,7 +27,7 @@ class OrderServiceTest {
 
     @Test
     void createOrderDeductsFromInventory() {
-        Order order = service.createOrder(1L, LocalDate.parse("2026-06-15"), "Vježba",
+        Order order = service.createOrder(1L, Optional.of(LocalDate.parse("2026-06-15")), "Vježba",
             List.of(new LineRequest(1L, 5)));
 
         assertThat(order.id()).isNotNull();
@@ -37,7 +38,7 @@ class OrderServiceTest {
 
     @Test
     void createOrderThrowsWhenStockInsufficient() {
-        assertThatThrownBy(() -> service.createOrder(1L, LocalDate.parse("2026-06-15"), null,
+        assertThatThrownBy(() -> service.createOrder(1L, Optional.of(LocalDate.parse("2026-06-15")), null,
                 List.of(new LineRequest(2L, 999))))
             .isInstanceOf(InsufficientStockException.class);
 
@@ -47,7 +48,7 @@ class OrderServiceTest {
 
     @Test
     void returnOrderRestoresInventory() {
-        Order order = service.createOrder(1L, LocalDate.parse("2026-06-15"), null,
+        Order order = service.createOrder(1L, Optional.of(LocalDate.parse("2026-06-15")), null,
             List.of(new LineRequest(3L, 4)));
         assertThat(itemRepository.findById(3L).orElseThrow().availableQuantity()).isEqualTo(12); // 16 - 4
 
@@ -60,7 +61,7 @@ class OrderServiceTest {
 
     @Test
     void deleteActiveOrderRestoresInventory() {
-        Order order = service.createOrder(1L, LocalDate.parse("2026-06-15"), null,
+        Order order = service.createOrder(1L, Optional.of(LocalDate.parse("2026-06-15")), null,
             List.of(new LineRequest(4L, 3)));
         assertThat(itemRepository.findById(4L).orElseThrow().availableQuantity()).isEqualTo(7); // 10 - 3
 

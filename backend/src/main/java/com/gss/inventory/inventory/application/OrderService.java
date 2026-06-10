@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.gss.inventory.inventory.domain.exception.InsufficientStockException;
 import com.gss.inventory.inventory.domain.exception.InventoryItemNotFoundException;
@@ -49,7 +50,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order createOrder(Long memberId, LocalDate dueDate, String note, List<LineRequest> lineRequests) {
+    public Order createOrder(Long memberId, Optional<LocalDate> dueDate, String note, List<LineRequest> lineRequests) {
         Member member = memberService.findById(memberId);
 
         List<OrderLine> lines = new ArrayList<>();
@@ -71,7 +72,7 @@ public class OrderService {
         }
 
         Order order = new Order(null, member.id(), member.fullName(), OrderStatus.AKTIVNO,
-            Instant.now(), dueDate, null, note, lines);
+            Instant.now(), dueDate.orElse(null), null, note, lines);
         return orderRepository.save(order);
     }
 

@@ -43,6 +43,10 @@ export function orderAttention(order: Pick<OrderSummary, 'status' | 'dueDate'>, 
     return 'RETURNED'
   }
 
+  if (!order.dueDate) {
+    return 'ACTIVE'
+  }
+
   const due = parseDueDate(order.dueDate)
   const today = startOfDay(now)
   const dayMs = 24 * 60 * 60 * 1000

@@ -23,6 +23,9 @@ export function OrderList({ orders, onReturn, onDelete, onCreateNew }: Props) {
     if (rankDiff !== 0) {
       return rankDiff
     }
+    if (!a.dueDate && !b.dueDate) return 0
+    if (!a.dueDate) return 1
+    if (!b.dueDate) return -1
     return a.dueDate.localeCompare(b.dueDate)
   })
 

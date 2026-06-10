@@ -12,6 +12,7 @@ import {
   listOrders,
   returnOrder,
 } from '../infrastructure/orderApi'
+import { incrementItemUsageCounts, incrementMemberUsageCounts } from '../infrastructure/itemUsage'
 
 type OrderErrors = { create: string; action: string }
 const emptyErrors: OrderErrors = { create: '', action: '' }
@@ -47,6 +48,13 @@ export function useOrdersBoard() {
     setErrors((e) => ({ ...e, create: '' }))
     try {
       await createOrder(createDraft)
+      const itemIds = createDraft.lines
+        .map((l) => l.itemId)
+        .filter((id): id is number => typeof id === 'number')
+      incrementItemUsageCounts(itemIds)
+      if (typeof createDraft.memberId === 'number') {
+        incrementMemberUsageCounts([createDraft.memberId])
+      }
       await reloadOrdersAndItems()
       setCreateDraft(emptyOrderDraft)
       return true

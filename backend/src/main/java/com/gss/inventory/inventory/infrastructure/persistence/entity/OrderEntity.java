@@ -41,7 +41,7 @@ public class OrderEntity {
     @Column(name = "issued_at", nullable = false)
     private Instant issuedAt;
 
-    @Column(name = "due_date", nullable = false)
+    @Column(name = "due_date")
     private LocalDate dueDate;
 
     @Column(name = "returned_at")
