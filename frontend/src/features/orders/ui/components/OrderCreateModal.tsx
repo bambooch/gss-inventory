@@ -25,7 +25,7 @@ export function OrderCreateModal({ draft, members, items, onDraftChange, onSubmi
   const [dateError, setDateError] = useState('')
 
   useEffect(() => {
-    lastLineRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    lastLineRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' })
   }, [draft.lines.length])
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {

@@ -61,7 +61,7 @@ describe('App', () => {
   })
 
   it('opens the create order modal', async () => {
-    mockApi([])
+    mockApi([], [{ id: 1, fullName: 'Test Member', email: '' }], [{ id: 1, name: 'Test Item', categories: [], description: null, location: null, availableQuantity: 5, totalQuantity: 5, images: [] }])
 
     renderAt()
 
@@ -70,8 +70,8 @@ describe('App', () => {
     await screen.findByRole('heading', { name: 'Sva zaduženja' })
     await user.click(screen.getByRole('button', { name: '+ Novo zaduženje' }))
 
-    expect(screen.getByRole('heading', { name: 'Novo zaduženje' })).toBeInTheDocument()
+    await screen.findByRole('heading', { name: 'Novo zaduženje' })
     expect(screen.getByLabelText('Član (zadužuje)')).toBeInTheDocument()
-    expect(screen.getByLabelText('Rok za povrat')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Rok za povrat/)).toBeInTheDocument()
   })
 })
