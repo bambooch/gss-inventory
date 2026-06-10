@@ -21,7 +21,7 @@ export function InventoryPage() {
           <p className="mt-4 max-w-2xl text-lg text-slate-600">
             Evidencija sve opreme GSS Zenica. Dodajte, uredite ili obrišite stavke i pratite dostupne količine.
           </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
             <article className="rounded-3xl bg-slate-950 px-5 py-4 text-left text-slate-50 shadow-lg">
               <p className="text-sm uppercase tracking-[0.24em] text-red-300">Vrsta opreme</p>
               <p className="mt-3 text-3xl font-semibold">{totalItems}</p>

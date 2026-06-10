@@ -13,7 +13,7 @@ export function OrderOverview({ total, pending, late, returned }: Props) {
       <p className="mt-4 max-w-2xl text-lg text-slate-600">
         Pregled svih zaduženja. Pratite aktivna i istekla zaduženja i evidentirajte povrat opreme.
       </p>
-      <div className="mt-8 grid gap-4 sm:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <article className="rounded-3xl bg-slate-950 px-5 py-4 text-left text-slate-50 shadow-lg">
           <p className="text-sm uppercase tracking-[0.24em] text-red-300">Ukupno</p>
           <p className="mt-3 text-3xl font-semibold">{total}</p>
