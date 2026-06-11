@@ -136,20 +136,13 @@ export function ItemCombobox({ id, items, value, onChange }: Props) {
                 .join(' ')}
             >
               <span className="truncate">{item.name}</span>
-              <div className="flex shrink-0 items-center gap-1.5">
-                {item.categories.slice(0, 2).map((cat) => (
-                  <span key={cat.id} className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
-                    {cat.label}
-                  </span>
-                ))}
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                    item.availableQuantity > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
-                  }`}
-                >
-                  {item.availableQuantity}
-                </span>
-              </div>
+              <span
+                className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${
+                  item.availableQuantity > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                }`}
+              >
+                {item.availableQuantity}
+              </span>
             </li>
           )
         })
