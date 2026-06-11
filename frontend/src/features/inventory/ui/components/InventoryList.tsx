@@ -1,4 +1,6 @@
+import { useState, useMemo } from 'react'
 import type { ItemCategory, InventoryItem, InventoryItemDraft } from '../../domain/inventoryItem'
+import { inputClasses } from '../../../../ui/theme'
 import { InventoryListItem } from './InventoryListItem'
 
 type Props = {
@@ -30,8 +32,24 @@ export function InventoryList({
   onDeleteImage,
   errors,
 }: Props) {
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredItems = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim()
+    if (!query) return items
+    return items.filter((item) => item.name.toLowerCase().includes(query))
+  }, [items, searchQuery])
+
   return (
     <div className="space-y-4">
+      <input
+        type="text"
+        className={inputClasses}
+        placeholder="Pretraži opremu..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+
       {errors.edit ? (
         <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700" role="alert">
           {errors.edit}
@@ -44,7 +62,7 @@ export function InventoryList({
       ) : null}
 
       <ul className="space-y-3 list-none p-0 m-0">
-        {items.map((item) => (
+        {filteredItems.map((item) => (
           <InventoryListItem
             key={item.id}
             item={item}
@@ -62,9 +80,9 @@ export function InventoryList({
         ))}
       </ul>
 
-      {items.length === 0 ? (
+      {filteredItems.length === 0 ? (
         <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 px-6 py-8 text-center text-sm text-slate-500">
-          Nema opreme u inventaru. Dodajte prvu stavku iznad.
+          {items.length === 0 ? 'Nema opreme u inventaru. Dodajte prvu stavku iznad.' : 'Nema rezultata pretrage.'}
         </div>
       ) : null}
     </div>
