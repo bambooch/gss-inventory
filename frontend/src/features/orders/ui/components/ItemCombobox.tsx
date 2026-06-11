@@ -160,6 +160,7 @@ export function ItemCombobox({ id, items, value, onChange }: Props) {
         <input
           ref={inputRef}
           type="text"
+          inputMode="search"
           className={inputClasses}
           placeholder="Pretraži opremu..."
           value={query}

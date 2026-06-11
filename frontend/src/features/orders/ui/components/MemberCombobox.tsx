@@ -151,6 +151,7 @@ export function MemberCombobox({ id, members, value, onChange }: Props) {
         <input
           ref={inputRef}
           type="text"
+          inputMode="search"
           className={inputClasses}
           placeholder="Pretraži člana..."
           value={query}
