@@ -158,7 +158,6 @@ export function OrderCreateModal({ draft, members, items, onDraftChange, onSubmi
               </div>
 
               {draft.lines.map((line, index) => {
-                const selected = items.find((item) => item.id === line.itemId)
                 const isLastLine = index === draft.lines.length - 1
                 return (
                   <div key={index} ref={isLastLine ? lastLineRef : null} className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4 sm:space-y-0 sm:border-0 sm:bg-transparent sm:p-0">
