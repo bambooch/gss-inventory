@@ -51,7 +51,10 @@ export function MemberCombobox({ id, members, value, onChange }: Props) {
     setQuery('')
     setActiveIndex(0)
     setOpen(true)
-    setTimeout(() => inputRef.current?.focus(), 0)
+    setTimeout(() => {
+      inputRef.current?.focus()
+      inputRef.current?.scrollIntoView({ behavior: 'auto', block: 'center' })
+    }, 100)
   }
 
   function selectMember(member: Member) {
@@ -158,6 +161,8 @@ export function MemberCombobox({ id, members, value, onChange }: Props) {
           onChange={(e) => { setQuery(e.target.value); setActiveIndex(0) }}
           onKeyDown={handleInputKeyDown}
           autoComplete="off"
+          autoCapitalize="off"
+          spellCheck="false"
         />
       ) : (
         <button

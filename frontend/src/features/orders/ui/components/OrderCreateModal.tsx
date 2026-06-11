@@ -181,11 +181,25 @@ export function OrderCreateModal({ draft, members, items, onDraftChange, onSubmi
                         <input
                           className={inputClasses}
                           id={`order-line-qty-${index}`}
-                          type="number"
-                          min={1}
-                          max={selected?.availableQuantity ?? undefined}
-                          value={line.quantity}
-                          onChange={(e) => updateLine(index, { quantity: Number(e.target.value) })}
+                          type="text"
+                          inputMode="numeric"
+                          value={line.quantity === 0 ? '' : line.quantity}
+                          onChange={(e) => {
+                            const val = e.target.value
+                            if (val === '') {
+                              updateLine(index, { quantity: 0 })
+                            } else {
+                              const num = parseInt(val, 10)
+                              if (!isNaN(num) && num > 0) {
+                                updateLine(index, { quantity: num })
+                              }
+                            }
+                          }}
+                          onBlur={() => {
+                            if (line.quantity === 0) {
+                              updateLine(index, { quantity: 1 })
+                            }
+                          }}
                         />
                       </div>
                       {draft.lines.length > 1 ? (
