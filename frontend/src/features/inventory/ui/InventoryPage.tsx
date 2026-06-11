@@ -1,16 +1,23 @@
-import { cardClasses } from '../../../ui/theme'
+import { useState } from 'react'
+import { cardClasses, primaryButtonClasses } from '../../../ui/theme'
 import { useCategories } from '../application/useCategories'
 import { useInventory } from '../application/useInventory'
-import { InventoryCreateForm } from './components/InventoryCreateForm'
+import { InventoryCreateModal } from './components/InventoryCreateModal'
 import { InventoryList } from './components/InventoryList'
 
 export function InventoryPage() {
   const inventory = useInventory()
   const { categories } = useCategories()
+  const [showCreateModal, setShowCreateModal] = useState(false)
 
   const totalItems = inventory.items.length
   const totalUnits = inventory.items.reduce((sum, item) => sum + item.totalQuantity, 0)
   const availableUnits = inventory.items.reduce((sum, item) => sum + item.availableQuantity, 0)
+
+  function handleCreateSubmit() {
+    inventory.submitCreate()
+    setShowCreateModal(false)
+  }
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
@@ -38,26 +45,13 @@ export function InventoryPage() {
         </div>
 
         <div className={cardClasses}>
-          <h2 className="font-display text-2xl text-slate-950">Nova oprema</h2>
-          <div className="mt-4">
-            <InventoryCreateForm
-              draft={inventory.createDraft}
-              availableCategories={categories}
-              onDraftChange={inventory.setCreateDraft}
-              onSubmit={inventory.submitCreate}
-            />
-            {inventory.errors.create ? (
-              <p className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700" role="alert">
-                {inventory.errors.create}
-              </p>
-            ) : null}
-          </div>
-        </div>
-
-        <div className={cardClasses}>
           <h2 className="font-display text-2xl text-slate-950">Sva oprema</h2>
           <div className="mt-4">
-            <InventoryList
+            <button className={primaryButtonClasses} onClick={() => setShowCreateModal(true)}>
+              + Dodaj opremu
+            </button>
+            <div className="mt-6">
+              <InventoryList
               items={inventory.items}
               editingItemId={inventory.editingItemId}
               editDraft={inventory.editDraft}
@@ -71,9 +65,24 @@ export function InventoryPage() {
               onDeleteImage={inventory.deleteItemImage}
               errors={inventory.errors}
             />
+            </div>
           </div>
         </div>
       </div>
+
+      {showCreateModal && (
+        <InventoryCreateModal
+          draft={inventory.createDraft}
+          availableCategories={categories}
+          onDraftChange={inventory.setCreateDraft}
+          onSubmit={handleCreateSubmit}
+          onClose={() => {
+            setShowCreateModal(false)
+            inventory.setCreateDraft({ name: '', description: '', categoryIds: [], totalQuantity: 0, images: [] })
+          }}
+          error={inventory.errors.create}
+        />
+      )}
     </div>
   )
 }

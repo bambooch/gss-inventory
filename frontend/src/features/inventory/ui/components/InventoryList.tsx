@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import type { ItemCategory, InventoryItem, InventoryItemDraft } from '../../domain/inventoryItem'
-import { inputClasses } from '../../../../ui/theme'
+import { inputClasses, primaryButtonClasses, secondaryButtonClasses } from '../../../../ui/theme'
 import { InventoryListItem } from './InventoryListItem'
 
 type Props = {
@@ -33,22 +33,52 @@ export function InventoryList({
   errors,
 }: Props) {
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
 
   const filteredItems = useMemo(() => {
+    let filtered = items
+
     const query = searchQuery.toLowerCase().trim()
-    if (!query) return items
-    return items.filter((item) => item.name.toLowerCase().includes(query))
-  }, [items, searchQuery])
+    if (query) {
+      filtered = filtered.filter((item) => item.name.toLowerCase().includes(query))
+    }
+
+    if (selectedCategoryId !== null) {
+      filtered = filtered.filter((item) => item.categories.some((cat) => cat.id === selectedCategoryId))
+    }
+
+    return filtered
+  }, [items, searchQuery, selectedCategoryId])
+
+  async function handleDelete(itemId: number) {
+    await onDelete(itemId)
+    setConfirmDeleteId(null)
+  }
 
   return (
     <div className="space-y-4">
-      <input
-        type="text"
-        className={inputClasses}
-        placeholder="Pretraži opremu..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
+      <div className="flex gap-3 flex-col sm:flex-row">
+        <input
+          type="text"
+          className={inputClasses}
+          placeholder="Pretraži opremu..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <select
+          className={inputClasses}
+          value={selectedCategoryId ?? ''}
+          onChange={(e) => setSelectedCategoryId(e.target.value ? Number(e.target.value) : null)}
+        >
+          <option value="">Sve kategorije</option>
+          {availableCategories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {errors.edit ? (
         <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700" role="alert">
@@ -73,7 +103,7 @@ export function InventoryList({
             onStartEditing={onStartEditing}
             onCancelEditing={onCancelEditing}
             onSubmitEdit={onSubmitEdit}
-            onDelete={onDelete}
+            onDelete={async (itemId) => setConfirmDeleteId(itemId)}
             onUploadImages={onUploadImages}
             onDeleteImage={onDeleteImage}
           />
@@ -85,6 +115,35 @@ export function InventoryList({
           {items.length === 0 ? 'Nema opreme u inventaru. Dodajte prvu stavku iznad.' : 'Nema rezultata pretrage.'}
         </div>
       ) : null}
+
+      {confirmDeleteId !== null && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-0" onClick={() => setConfirmDeleteId(null)}>
+          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
+          <div
+            className="relative z-10 w-full max-w-md rounded-3xl bg-white p-6 shadow-[0_40px_120px_rgba(15,23,42,0.3)] sm:p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-semibold text-slate-950">Obriši opremu?</h3>
+            <p className="mt-3 text-sm text-slate-600">Ova akcija se ne može poništiti. Svi podaci opreme će biti trajno obrisani.</p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                className={primaryButtonClasses}
+                onClick={() => handleDelete(confirmDeleteId)}
+              >
+                Obriši
+              </button>
+              <button
+                type="button"
+                className={secondaryButtonClasses}
+                onClick={() => setConfirmDeleteId(null)}
+              >
+                Otkaži
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

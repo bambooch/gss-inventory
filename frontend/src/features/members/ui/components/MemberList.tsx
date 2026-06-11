@@ -1,14 +1,10 @@
 import { useState, useMemo } from 'react'
 import type { Member, MemberDraft } from '../../domain/member'
-import { inputClasses } from '../../../../ui/theme'
-import { MemberCreateForm } from './MemberCreateForm'
+import { inputClasses, primaryButtonClasses, secondaryButtonClasses } from '../../../../ui/theme'
 import { MemberListItem } from './MemberListItem'
 
 type Props = {
   members: Member[]
-  createDraft: MemberDraft
-  onCreateDraftChange: (draft: MemberDraft) => void
-  onSubmitCreate: () => Promise<void>
   editingMemberId: number | null
   editDraft: MemberDraft
   onEditDraftChange: (draft: MemberDraft) => void
@@ -21,9 +17,6 @@ type Props = {
 
 export function MemberList({
   members,
-  createDraft,
-  onCreateDraftChange,
-  onSubmitCreate,
   editingMemberId,
   editDraft,
   onEditDraftChange,
@@ -34,6 +27,7 @@ export function MemberList({
   errors,
 }: Props) {
   const [searchQuery, setSearchQuery] = useState('')
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
 
   const filteredMembers = useMemo(() => {
     const query = searchQuery.toLowerCase().trim()
@@ -41,10 +35,13 @@ export function MemberList({
     return members.filter((member) => member.fullName.toLowerCase().includes(query) || member.team?.toLowerCase().includes(query))
   }, [members, searchQuery])
 
+  async function handleDelete(memberId: number) {
+    await onDelete(memberId)
+    setConfirmDeleteId(null)
+  }
+
   return (
     <div className="space-y-4">
-      <MemberCreateForm draft={createDraft} onDraftChange={onCreateDraftChange} onSubmit={onSubmitCreate} />
-
       <input
         type="text"
         className={inputClasses}
@@ -80,7 +77,7 @@ export function MemberList({
             onStartEditing={onStartEditing}
             onCancelEditing={onCancelEditing}
             onSubmitEdit={onSubmitEdit}
-            onDelete={onDelete}
+            onDelete={async (memberId) => setConfirmDeleteId(memberId)}
           />
         ))}
       </ul>
@@ -90,6 +87,35 @@ export function MemberList({
           {members.length === 0 ? 'Nema članova. Dodajte prvog da biste mogli kreirati zaduženja.' : 'Nema rezultata pretrage.'}
         </div>
       ) : null}
+
+      {confirmDeleteId !== null && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-0" onClick={() => setConfirmDeleteId(null)}>
+          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
+          <div
+            className="relative z-10 w-full max-w-md rounded-3xl bg-white p-6 shadow-[0_40px_120px_rgba(15,23,42,0.3)] sm:p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-semibold text-slate-950">Obriši člana?</h3>
+            <p className="mt-3 text-sm text-slate-600">Ova akcija se ne može poništiti. Svi podaci člana će biti trajno obrisani.</p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                className={primaryButtonClasses}
+                onClick={() => handleDelete(confirmDeleteId)}
+              >
+                Obriši
+              </button>
+              <button
+                type="button"
+                className={secondaryButtonClasses}
+                onClick={() => setConfirmDeleteId(null)}
+              >
+                Otkaži
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

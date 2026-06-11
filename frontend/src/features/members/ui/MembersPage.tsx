@@ -1,9 +1,17 @@
-import { cardClasses } from '../../../ui/theme'
+import { useState } from 'react'
+import { cardClasses, primaryButtonClasses } from '../../../ui/theme'
 import { useMembers } from '../application/useMembers'
 import { MemberList } from './components/MemberList'
+import { MemberCreateModal } from './components/MemberCreateModal'
 
 export function MembersPage() {
   const membersHook = useMembers()
+  const [showCreateModal, setShowCreateModal] = useState(false)
+
+  function handleCreateSubmit() {
+    membersHook.submitCreate()
+    setShowCreateModal(false)
+  }
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
@@ -17,22 +25,37 @@ export function MembersPage() {
         </div>
 
         <div className={cardClasses}>
-          <MemberList
-            members={membersHook.members}
-            createDraft={membersHook.createDraft}
-            onCreateDraftChange={membersHook.setCreateDraft}
-            onSubmitCreate={membersHook.submitCreate}
-            editingMemberId={membersHook.editingMemberId}
-            editDraft={membersHook.editDraft}
-            onEditDraftChange={membersHook.setEditDraft}
-            onStartEditing={membersHook.startEditing}
-            onCancelEditing={membersHook.cancelEditing}
-            onSubmitEdit={membersHook.submitEdit}
-            onDelete={membersHook.removeMember}
-            errors={membersHook.errors}
-          />
+          <button className={primaryButtonClasses} onClick={() => setShowCreateModal(true)}>
+            + Dodaj člana
+          </button>
+          <div className="mt-6">
+            <MemberList
+              members={membersHook.members}
+              editingMemberId={membersHook.editingMemberId}
+              editDraft={membersHook.editDraft}
+              onEditDraftChange={membersHook.setEditDraft}
+              onStartEditing={membersHook.startEditing}
+              onCancelEditing={membersHook.cancelEditing}
+              onSubmitEdit={membersHook.submitEdit}
+              onDelete={membersHook.removeMember}
+              errors={membersHook.errors}
+            />
+          </div>
         </div>
       </div>
+
+      {showCreateModal && (
+        <MemberCreateModal
+          draft={membersHook.createDraft}
+          onDraftChange={membersHook.setCreateDraft}
+          onSubmit={handleCreateSubmit}
+          onClose={() => {
+            setShowCreateModal(false)
+            membersHook.setCreateDraft({ fullName: '', phone: '', team: '' })
+          }}
+          error={membersHook.errors.create}
+        />
+      )}
     </div>
   )
 }

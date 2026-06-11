@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, useMemo } from 'react'
 
 import {
   cardClasses,
@@ -14,6 +14,7 @@ import {
   updateCategory,
 } from '../infrastructure/inventoryCategoryApi'
 import { useCategories } from '../application/useCategories'
+import { CategoryCreateModal } from './components/CategoryCreateModal'
 
 type DraftCategory = { name: string; label: string; sortOrder: string }
 const emptyDraft: DraftCategory = { name: '', label: '', sortOrder: '' }
@@ -23,19 +24,29 @@ export function CategoryManagementPage() {
   const [draft, setDraft] = useState<DraftCategory>(emptyDraft)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editDraft, setEditDraft] = useState<DraftCategory>(emptyDraft)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditConfirm, setShowEditConfirm] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
   const [error, setError] = useState('')
+
+  const filteredCategories = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim()
+    if (!query) return categories
+    return categories.filter((cat) => cat.label.toLowerCase().includes(query) || cat.name.toLowerCase().includes(query))
+  }, [categories, searchQuery])
 
   function toDraft(cat: ItemCategory): DraftCategory {
     return { name: cat.name, label: cat.label, sortOrder: String(cat.sortOrder) }
   }
 
-  async function handleCreate(e: FormEvent) {
-    e.preventDefault()
+  async function handleCreate() {
     setError('')
     try {
       const created = await createCategory(draft.name, draft.label, Number(draft.sortOrder) || 0)
       setCategories((prev) => [...prev, created].sort((a, b) => a.sortOrder - b.sortOrder))
       setDraft(emptyDraft)
+      setShowCreateModal(false)
     } catch {
       setError('Nije moguće kreirati kategoriju.')
     }
@@ -43,8 +54,13 @@ export function CategoryManagementPage() {
 
   async function handleUpdate(e: FormEvent) {
     e.preventDefault()
+    setShowEditConfirm(true)
+  }
+
+  async function confirmUpdate() {
     if (editingId === null) return
     setError('')
+    setShowEditConfirm(false)
     try {
       const updated = await updateCategory(editingId, editDraft.name, editDraft.label, Number(editDraft.sortOrder) || 0)
       setCategories((prev) =>
@@ -58,6 +74,7 @@ export function CategoryManagementPage() {
 
   async function handleDelete(id: number) {
     setError('')
+    setShowDeleteConfirm(null)
     try {
       await deleteCategory(id)
       setCategories((prev) => prev.filter((c) => c.id !== id))
@@ -78,47 +95,9 @@ export function CategoryManagementPage() {
         </div>
 
         <div className={cardClasses}>
-          <h2 className="font-display text-2xl text-slate-950">Nova kategorija</h2>
-          <form className="mt-4 space-y-3" onSubmit={(e) => void handleCreate(e)}>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="text-sm font-semibold text-slate-700">Ključ (npr. ALATI)</label>
-                <input
-                  className={inputClasses}
-                  placeholder="NAZIV_KATEGORIJE"
-                  value={draft.name}
-                  onChange={(e) => setDraft({ ...draft, name: e.target.value.toUpperCase() })}
-                  required
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-semibold text-slate-700">Naziv za prikaz</label>
-                <input
-                  className={inputClasses}
-                  placeholder="Alati"
-                  value={draft.label}
-                  onChange={(e) => setDraft({ ...draft, label: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
-            <div className="flex items-end gap-3">
-              <div className="w-36 space-y-1.5">
-                <label className="text-sm font-semibold text-slate-700">Redoslijed</label>
-                <input
-                  className={inputClasses}
-                  type="number"
-                  min={0}
-                  placeholder="0"
-                  value={draft.sortOrder}
-                  onChange={(e) => setDraft({ ...draft, sortOrder: e.target.value })}
-                />
-              </div>
-              <button className={primaryButtonClasses} type="submit" disabled={!draft.name || !draft.label}>
-                Dodaj kategoriju
-              </button>
-            </div>
-          </form>
+          <button className={primaryButtonClasses} onClick={() => setShowCreateModal(true)}>
+            + Dodaj kategoriju
+          </button>
           {error ? (
             <p className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">
               {error}
@@ -128,11 +107,18 @@ export function CategoryManagementPage() {
 
         <div className={cardClasses}>
           <h2 className="font-display text-2xl text-slate-950">Sve kategorije</h2>
-          <div className="mt-4 space-y-2">
-            {categories.length === 0 && (
-              <p className="text-sm text-slate-500">Nema definisanih kategorija.</p>
+          <div className="mt-4 space-y-3">
+            <input
+              type="text"
+              className={inputClasses}
+              placeholder="Pretraži kategorije..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {filteredCategories.length === 0 && (
+              <p className="text-sm text-slate-500">{categories.length === 0 ? 'Nema definisanih kategorija.' : 'Nema rezultata pretrage.'}</p>
             )}
-            {categories.map((cat) => (
+            {filteredCategories.map((cat) => (
               <div
                 key={cat.id}
                 className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4"
@@ -159,7 +145,7 @@ export function CategoryManagementPage() {
                         />
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-end gap-3">
                       <div className="w-36 space-y-1.5">
                         <label className="text-sm font-semibold text-slate-700">Redoslijed</label>
                         <input
@@ -197,7 +183,7 @@ export function CategoryManagementPage() {
                       <button
                         className={dangerButtonClasses}
                         type="button"
-                        onClick={() => void handleDelete(cat.id)}
+                        onClick={() => setShowDeleteConfirm(cat.id)}
                       >
                         Obriši
                       </button>
@@ -209,6 +195,82 @@ export function CategoryManagementPage() {
           </div>
         </div>
       </div>
+
+      {showCreateModal && (
+        <CategoryCreateModal
+          draft={draft}
+          onDraftChange={setDraft}
+          onSubmit={handleCreate}
+          onClose={() => {
+            setShowCreateModal(false)
+            setDraft(emptyDraft)
+          }}
+          error={error}
+        />
+      )}
+
+      {showEditConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-0" onClick={() => setShowEditConfirm(false)}>
+          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
+          <div
+            className="relative z-10 w-full max-w-md rounded-3xl bg-white p-6 shadow-[0_40px_120px_rgba(15,23,42,0.3)] sm:p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-semibold text-slate-950">Potvrdi ažuriranje</h3>
+            <div className="mt-6 space-y-4">
+              <div className="rounded-lg bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">Kategorija</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{editDraft.label || 'Nije navedeno'}</p>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                className={primaryButtonClasses}
+                onClick={confirmUpdate}
+              >
+                Potvrdi
+              </button>
+              <button
+                type="button"
+                className={secondaryButtonClasses}
+                onClick={() => setShowEditConfirm(false)}
+              >
+                Nazad
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeleteConfirm !== null && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-0" onClick={() => setShowDeleteConfirm(null)}>
+          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
+          <div
+            className="relative z-10 w-full max-w-md rounded-3xl bg-white p-6 shadow-[0_40px_120px_rgba(15,23,42,0.3)] sm:p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-semibold text-slate-950">Obriši kategoriju?</h3>
+            <p className="mt-3 text-sm text-slate-600">Ova akcija se ne može poništiti. Kategorija će biti trajno obrisana.</p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                className={primaryButtonClasses}
+                onClick={() => handleDelete(showDeleteConfirm)}
+              >
+                Obriši
+              </button>
+              <button
+                type="button"
+                className={secondaryButtonClasses}
+                onClick={() => setShowDeleteConfirm(null)}
+              >
+                Otkaži
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
