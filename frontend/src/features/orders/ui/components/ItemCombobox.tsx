@@ -92,7 +92,11 @@ export function ItemCombobox({ id, items, value, onChange }: Props) {
 
   useEffect(() => {
     if (!open) return
-    function onScroll() { setOpen(false) }
+    function onScroll(e: Event) {
+      if (e.target === window || e.target === document) {
+        setOpen(false)
+      }
+    }
     window.addEventListener('scroll', onScroll, true)
     return () => window.removeEventListener('scroll', onScroll, true)
   }, [open])
