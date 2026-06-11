@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { cardClasses, primaryButtonClasses } from '../../../ui/theme'
 import { useCategories } from '../application/useCategories'
 import { useInventory } from '../application/useInventory'
+import { emptyInventoryItemDraft } from '../domain/inventoryItem'
 import { InventoryCreateModal } from './components/InventoryCreateModal'
 import { InventoryList } from './components/InventoryList'
 
@@ -14,8 +15,8 @@ export function InventoryPage() {
   const totalUnits = inventory.items.reduce((sum, item) => sum + item.totalQuantity, 0)
   const availableUnits = inventory.items.reduce((sum, item) => sum + item.availableQuantity, 0)
 
-  function handleCreateSubmit() {
-    inventory.submitCreate()
+  async function handleCreateSubmit() {
+    await inventory.submitCreate()
     setShowCreateModal(false)
   }
 
@@ -78,7 +79,7 @@ export function InventoryPage() {
           onSubmit={handleCreateSubmit}
           onClose={() => {
             setShowCreateModal(false)
-            inventory.setCreateDraft({ name: '', description: '', categoryIds: [], totalQuantity: 0, images: [] })
+            inventory.setCreateDraft(emptyInventoryItemDraft)
           }}
           error={inventory.errors.create}
         />

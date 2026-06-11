@@ -2,7 +2,7 @@ import type { FormEvent } from 'react'
 import { useState } from 'react'
 
 import type { ItemCategory, InventoryItemDraft } from '../../domain/inventoryItem'
-import { inputClasses, primaryButtonClasses, secondaryButtonClasses } from '../../../../ui/theme'
+import { primaryButtonClasses, secondaryButtonClasses } from '../../../../ui/theme'
 import { InventoryFormFields } from './InventoryFormFields'
 
 type Props = {

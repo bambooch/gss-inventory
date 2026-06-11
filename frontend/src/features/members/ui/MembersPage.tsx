@@ -8,8 +8,8 @@ export function MembersPage() {
   const membersHook = useMembers()
   const [showCreateModal, setShowCreateModal] = useState(false)
 
-  function handleCreateSubmit() {
-    membersHook.submitCreate()
+  async function handleCreateSubmit() {
+    await membersHook.submitCreate()
     setShowCreateModal(false)
   }
 
