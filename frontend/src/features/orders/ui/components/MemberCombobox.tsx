@@ -87,14 +87,14 @@ export function MemberCombobox({ id, members, value, onChange }: Props) {
   }, [open])
 
   useEffect(() => {
-    if (!open) return
-    function onScroll(e: Event) {
-      if (e.target === window || e.target === document) {
-        setOpen(false)
-      }
+    if (open) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
     }
-    window.addEventListener('scroll', onScroll, true)
-    return () => window.removeEventListener('scroll', onScroll, true)
+    return () => {
+      document.body.style.overflow = ''
+    }
   }, [open])
 
   useEffect(() => {
