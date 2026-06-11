@@ -51,10 +51,7 @@ export function MemberCombobox({ id, members, value, onChange }: Props) {
     setQuery('')
     setActiveIndex(0)
     setOpen(true)
-    setTimeout(() => {
-      inputRef.current?.focus()
-      inputRef.current?.scrollIntoView({ behavior: 'auto', block: 'center' })
-    }, 100)
+    setTimeout(() => inputRef.current?.focus(), 100)
   }
 
   function selectMember(member: Member) {
